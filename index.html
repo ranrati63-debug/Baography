@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAOGRAPHY — Coming Soon</title>
+<meta name="description" content="Baography — less wait, more yum. Coming soon.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --charcoal:   #0e0707;
+    --red:        #c62828;
+    --red-deep:   #690d0c;
+    --cream:      #fffff0;
+    --beige:      #f6e7d3;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:var(--charcoal);
+    color:var(--cream);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--red); color:var(--cream); }
+
+  .stage{
+    position:relative;
+    min-height:100svh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .bg-video{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    z-index:0;
+    filter:saturate(1.05) contrast(1.02);
+  }
+  .bg-overlay{
+    position:fixed; inset:0; z-index:1;
+    background:
+      radial-gradient(120% 90% at 50% 18%, rgba(14,7,7,0.18) 0%, rgba(14,7,7,0.58) 45%, rgba(14,7,7,0.88) 78%, #0e0707 100%),
+      linear-gradient(180deg, rgba(14,7,7,0.55) 0%, rgba(14,7,7,0.25) 20%, rgba(14,7,7,0.35) 60%, rgba(14,7,7,0.94) 100%);
+  }
+  .grain{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .content{
+    position:relative; z-index:3;
+    width:100%;
+    max-width:720px;
+    padding:6vh 24px 6vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  .mark{
+    position:relative;
+    width:min(80vw, 340px);
+    aspect-ratio:1/1;
+    margin:56px 0 6px;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0;
+    animation:riseIn 1s .3s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .ramen-wheel{
+    position:absolute; inset:6%;
+    cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><g transform='rotate(45 32 32)'><rect x='27.5' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/><rect x='32.5' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/></g></svg>") 32 32, grab;
+    touch-action:none;
+    border-radius:50%;
+    filter:drop-shadow(0 18px 34px rgba(0,0,0,.5));
+  }
+  .ramen-wheel:active{
+    cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><g transform='rotate(20 32 32)'><rect x='25' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/><rect x='35' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/></g></svg>") 32 32, grabbing;
+  }
+  .ramen-wheel svg{ width:100%; height:100%; display:block; }
+  .ramen-wheel img{
+    width:100%; height:100%;
+    display:block;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center;
+    border:5px solid var(--red-deep);
+    outline:2px solid rgba(246,231,211,.5);
+    outline-offset:-8px;
+    -webkit-user-drag:none;
+    user-select:none;
+    pointer-events:none;
+  }
+
+  .logo-badge{
+    position:absolute;
+    top:-32%;
+    left:50%;
+    transform:translateX(-50%);
+    width:72%;
+    z-index:4;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .logo-badge::before{
+    content:"";
+    position:absolute;
+    inset:30% 4%;
+    background:#f5e7d1;
+    border-radius:16px;
+    box-shadow:0 10px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(105,13,12,.12);
+    z-index:-1;
+  }
+  .logo-badge img{
+    width:100%;
+    height:auto;
+    display:block;
+    padding:10px 8px;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.15));
+  }
+
+  .spin-hint{
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--beige);
+    opacity:0;
+    font-weight:700;
+    display:flex; align-items:center; gap:8px;
+    animation:riseIn .9s .55s cubic-bezier(.16,1,.3,1) forwards, hintPulse 2.6s 1.4s ease-in-out infinite;
+  }
+  .spin-hint svg{ width:14px; height:14px; }
+
+  .tag-official{
+    margin:20px 0 6px;
+    font-weight:900;
+    letter-spacing:.16em;
+    font-size:clamp(15px,3.4vw,20px);
+    color:var(--cream);
+    opacity:0;
+    animation:riseIn .9s .68s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .tag-official .r{ color:var(--red); }
+  .tag-official .dot{ color:var(--red); opacity:.6; margin:0 6px; }
+
+  .tagline{
+    max-width:440px;
+    margin:14px 0 40px;
+    font-size:clamp(14px,2.2vw,16px);
+    line-height:1.65;
+    color:var(--beige);
+    opacity:.85;
+    font-weight:400;
+  }
+
+  .countdown{
+    display:flex;
+    gap:clamp(10px,2.4vw,20px);
+    margin-bottom:40px;
+    opacity:0;
+    animation:riseIn .9s .8s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .lantern{
+    position:relative;
+    width:clamp(58px,14vw,76px);
+    padding:14px 4px 12px;
+    background:linear-gradient(180deg, #241211, #150a0a);
+    border:1px solid rgba(246,231,211,.22);
+    border-radius:10px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), 0 14px 26px rgba(0,0,0,.35);
+  }
+  .lantern::before{
+    content:""; position:absolute; left:50%; top:-5px; transform:translateX(-50%);
+    width:14px; height:5px; border-radius:2px 2px 0 0;
+    background:var(--red); opacity:.75;
+  }
+  .lantern .num{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:900;
+    font-size:clamp(22px,5.4vw,30px);
+    color:var(--cream);
+    line-height:1;
+  }
+  .lantern .lbl{
+    display:block;
+    margin-top:6px;
+    font-size:9.5px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--red);
+    font-weight:700;
+  }
+
+  .socials{
+    display:flex; gap:22px; margin-top:12px;
+    opacity:0;
+    animation:riseIn .9s .92s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .socials a{
+    width:38px; height:38px;
+    border:1px solid rgba(246,231,211,.3);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--beige);
+    text-decoration:none;
+    transition:all .25s ease;
+  }
+  .socials a:hover{ border-color:var(--red); color:var(--cream); background:rgba(198,40,40,.14); }
+  .socials svg{ width:16px; height:16px; }
+
+  .steam{ position:absolute; top:-6px; left:50%; width:1px; height:1px; z-index:3; pointer-events:none; }
+  .wisp{
+    position:absolute; bottom:0;
+    width:2px; height:70px;
+    background:linear-gradient(180deg, rgba(255,255,240,.4), rgba(255,255,240,.12) 60%, transparent);
+    border-radius:2px;
+    filter:blur(1.5px);
+    animation:rise 5.5s ease-in infinite;
+  }
+  .wisp:nth-child(1){ left:-22px; animation-delay:0s; }
+  .wisp:nth-child(2){ left:0px; animation-delay:1.8s; }
+  .wisp:nth-child(3){ left:20px; animation-delay:3.6s; }
+
+  .sound-btn{
+    position:fixed; top:22px; right:22px; z-index:10;
+    width:46px; height:46px;
+    border-radius:50%;
+    border:1px solid rgba(246,231,211,.35);
+    background:rgba(14,7,7,.5);
+    backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color:var(--cream);
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .sound-btn:hover{ border-color:var(--red); background:rgba(14,7,7,.72); }
+  .sound-btn svg{ width:18px; height:18px; }
+  .sound-btn .icon-off{ display:none; }
+  .sound-btn.muted .icon-on{ display:none; }
+  .sound-btn.muted .icon-off{ display:block; }
+
+  .sound-hint{
+    position:fixed; top:22px; right:78px; z-index:10;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--beige);
+    background:rgba(14,7,7,.5);
+    border:1px solid rgba(246,231,211,.22);
+    padding:8px 14px; border-radius:999px;
+    backdrop-filter:blur(8px);
+    opacity:0; transform:translateY(-4px);
+    animation:hintIn .7s 1.6s ease forwards, hintOut .7s 5.5s ease forwards;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+
+  .brandline{
+    position:relative; z-index:3;
+    padding-bottom:28px;
+    font-size:10.5px;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:rgba(246,231,211,.55);
+    text-align:center;
+  }
+
+  @keyframes riseIn{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes hintPulse{
+    0%,100%{ opacity:.6; transform:translateY(0); }
+    50%{ opacity:1; transform:translateY(-2px); }
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) scaleY(1); opacity:0; }
+    12%{ opacity:.75; }
+    75%{ opacity:.2; }
+    100%{ transform:translateY(-90px) scaleY(1.5); opacity:0; }
+  }
+  @keyframes hintIn{ to{ opacity:1; transform:translateY(0); } }
+  @keyframes hintOut{ to{ opacity:0; transform:translateY(-4px); } }
+
+  @media (max-width:480px){
+    .sound-hint{ right:70px; font-size:9.5px; padding:7px 10px; }
+    .countdown{ gap:8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline preload="auto">
+  <source src="https://res.cloudinary.com/dey4zikfh/video/upload/v1782937559/0702_ipf3pt.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+<div class="grain"></div>
+
+<button class="sound-btn" id="soundBtn" aria-label="Toggle sound">
+  <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M18.5 6a9 9 0 0 1 0 12"></path></svg>
+  <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+</button>
+<div class="sound-hint">Tap for sound &amp; music</div>
+
+<main class="stage">
+  <div class="content">
+
+    <div class="mark">
+      <div class="steam" aria-hidden="true">
+        <div class="wisp"></div>
+        <div class="wisp"></div>
+        <div class="wisp"></div>
+      </div>
+
+      <div class="ramen-wheel" id="ramenWheel" role="img" aria-label="Spinning bowl of ramen, drag to spin">
+        <img src="https://res.cloudinary.com/dey4zikfh/image/upload/v1782939097/Untitled_design_24_qwkeid.png" alt="Bowl of ramen">
+      </div>
+
+      <div class="logo-badge">
+        <img src="https://res.cloudinary.com/dey4zikfh/image/upload/v1782938335/455d667a-e48b-4b84-b4f4-e233b7481f1f_vpzqrg.png" alt="Baography">
+      </div>
+    </div>
+
+    <p class="spin-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 4v5h-5"></path></svg>
+      Give it a spin
+    </p>
+
+    <p class="tag-official">
+      <span class="dot">•</span>LESS <span class="r">WAIT.</span> MORE <span class="r">YUM.</span><span class="dot">•</span>
+    </p>
+
+    <p class="tagline">A new bao house is rising. Baography is almost ready to open its doors — pull up a stool.</p>
+
+    <div class="countdown" id="countdown" aria-label="Countdown to launch">
+      <div class="lantern"><span class="num" id="cd-days">--</span><span class="lbl">Days</span></div>
+      <div class="lantern"><span class="num" id="cd-hours">--</span><span class="lbl">Hrs</span></div>
+      <div class="lantern"><span class="num" id="cd-mins">--</span><span class="lbl">Min</span></div>
+      <div class="lantern"><span class="num" id="cd-secs">--</span><span class="lbl">Sec</span></div>
+    </div>
+
+    <div class="socials">
+      <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"></circle></svg></a>
+      <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+      <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.4L3 20l1.1-5.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M8.5 9.5c.3 3 2.7 5.2 5.7 5.5" stroke-linecap="round"></path></svg></a>
+    </div>
+
+  </div>
+</main>
+
+<p class="brandline">Baography &copy; <span id="year"></span> — Coming Soon</p>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const STORAGE_KEY = 'baography_launch_date';
+  let launchDate = localStorage.getItem(STORAGE_KEY);
+  if(!launchDate){
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    d.setHours(10,0,0,0);
+    launchDate = d.toISOString();
+    localStorage.setItem(STORAGE_KEY, launchDate);
+  }
+  const target = new Date(launchDate).getTime();
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function tick(){
+    const now = Date.now();
+    let diff = target - now;
+    if(diff < 0) diff = 0;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-days').textContent = pad(days);
+    document.getElementById('cd-hours').textContent = pad(hours);
+    document.getElementById('cd-mins').textContent = pad(mins);
+    document.getElementById('cd-secs').textContent = pad(secs);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  const video = document.querySelector('.bg-video');
+  const soundBtn = document.getElementById('soundBtn');
+  const soundHint = document.querySelector('.sound-hint');
+
+  function setMutedUI(isMuted){
+    if(isMuted){ soundBtn.classList.add('muted'); }
+    else{ soundBtn.classList.remove('muted'); if(soundHint) soundHint.style.display = 'none'; }
+  }
+
+  // Try to start with sound on. Browsers usually block this without prior
+  // interaction, so we fall back to muted playback + the tap-to-unmute hint.
+  video.muted = false;
+  const playAttempt = video.play();
+  if(playAttempt !== undefined){
+    playAttempt.then(() => {
+      setMutedUI(video.muted);
+    }).catch(() => {
+      video.muted = true;
+      video.play().catch(() => {});
+      setMutedUI(true);
+    });
+  }
+
+  soundBtn.addEventListener('click', () => {
+    if(video.muted){
+      video.muted = false;
+      video.play().catch(()=>{});
+      setMutedUI(false);
+    } else {
+      video.muted = true;
+      setMutedUI(true);
+    }
+  });
+
+  (function(){
+    const wheel = document.getElementById('ramenWheel');
+    const idleSpeed = 0.12;
+    let angle = 0;
+    let velocity = idleSpeed;
+    let dragging = false;
+    let lastAngle = 0;
+    let lastTime = 0;
+    let pointerId = null;
+
+    function angleFromEvent(e){
+      const rect = wheel.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      return Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+    }
+
+    function shortestDelta(a, b){
+      let d = a - b;
+      while(d > 180) d -= 360;
+      while(d < -180) d += 360;
+      return d;
+    }
+
+    wheel.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      pointerId = e.pointerId;
+      wheel.setPointerCapture(pointerId);
+      lastAngle = angleFromEvent(e);
+      lastTime = performance.now();
+      velocity = 0;
+    });
+
+    wheel.addEventListener('pointermove', (e) => {
+      if(!dragging) return;
+      const now = performance.now();
+      const dt = Math.max(now - lastTime, 1);
+      const currentAngle = angleFromEvent(e);
+      const delta = shortestDelta(currentAngle, lastAngle);
+      angle += delta;
+      velocity = delta / (dt / 16.67);
+      lastAngle = currentAngle;
+      lastTime = now;
+      wheel.style.transform = `rotate(${angle}deg)`;
+    });
+
+    function endDrag(){
+      dragging = false;
+      pointerId = null;
+    }
+    wheel.addEventListener('pointerup', endDrag);
+    wheel.addEventListener('pointercancel', endDrag);
+    wheel.addEventListener('pointerleave', () => { if(!wheel.hasPointerCapture) dragging = false; });
+
+    function loop(){
+      if(!dragging){
+        velocity += (idleSpeed - velocity) * 0.02;
+        angle += velocity;
+        wheel.style.transform = `rotate(${angle}deg)`;
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+
+</script>
+
+</body>
+</html>
