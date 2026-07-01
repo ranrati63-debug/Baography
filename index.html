@@ -79,6 +79,8 @@
     display:flex; align-items:center; justify-content:center;
     opacity:0;
     animation:riseIn 1s .3s cubic-bezier(.16,1,.3,1) forwards;
+    will-change:transform;
+    transition:transform .25s ease-out;
   }
   .ramen-wheel{
     position:absolute; inset:6%;
@@ -86,9 +88,13 @@
     touch-action:none;
     border-radius:50%;
     filter:drop-shadow(0 18px 34px rgba(0,0,0,.5));
+    transition:filter .25s ease;
   }
   .ramen-wheel:active{
     cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><g transform='rotate(20 32 32)'><rect x='25' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/><rect x='35' y='2' width='4' height='56' rx='2' fill='%23f6e7d3' stroke='%23690d0c' stroke-width='1.4'/></g></svg>") 32 32, grabbing;
+  }
+  .ramen-wheel.poked{
+    filter:drop-shadow(0 18px 34px rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(198,40,40,.55));
   }
   .ramen-wheel svg{ width:100%; height:100%; display:block; }
   .ramen-wheel img{
@@ -144,21 +150,39 @@
   }
   .spin-hint svg{ width:14px; height:14px; }
 
+  /* NEW: Coming Soon badge */
+  .coming-soon{
+    position:relative;
+    margin:22px 0 4px;
+    font-weight:900;
+    font-size:clamp(32px,8vw,58px);
+    letter-spacing:.06em;
+    line-height:1;
+    text-transform:uppercase;
+    background:linear-gradient(100deg, var(--beige) 20%, var(--cream) 40%, var(--red) 50%, var(--cream) 60%, var(--beige) 80%);
+    background-size:220% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    opacity:0;
+    animation:riseIn .9s .62s cubic-bezier(.16,1,.3,1) forwards, shimmer 4.5s 1.6s ease-in-out infinite;
+  }
+
   .tag-official{
-    margin:20px 0 6px;
+    margin:14px 0 6px;
     font-weight:900;
     letter-spacing:.16em;
     font-size:clamp(15px,3.4vw,20px);
     color:var(--cream);
     opacity:0;
-    animation:riseIn .9s .68s cubic-bezier(.16,1,.3,1) forwards;
+    animation:riseIn .9s .74s cubic-bezier(.16,1,.3,1) forwards;
   }
   .tag-official .r{ color:var(--red); }
   .tag-official .dot{ color:var(--red); opacity:.6; margin:0 6px; }
 
   .tagline{
     max-width:440px;
-    margin:14px 0 40px;
+    margin:14px 0 34px;
     font-size:clamp(14px,2.2vw,16px);
     line-height:1.65;
     color:var(--beige);
@@ -169,9 +193,9 @@
   .countdown{
     display:flex;
     gap:clamp(10px,2.4vw,20px);
-    margin-bottom:40px;
+    margin-bottom:34px;
     opacity:0;
-    animation:riseIn .9s .8s cubic-bezier(.16,1,.3,1) forwards;
+    animation:riseIn .9s .86s cubic-bezier(.16,1,.3,1) forwards;
   }
   .lantern{
     position:relative;
@@ -181,6 +205,13 @@
     border:1px solid rgba(246,231,211,.22);
     border-radius:10px;
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), 0 14px 26px rgba(0,0,0,.35);
+    cursor:default;
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1), border-color .25s ease, box-shadow .25s ease;
+  }
+  .lantern:hover{
+    transform:translateY(-6px) scale(1.05);
+    border-color:rgba(198,40,40,.6);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), 0 18px 30px rgba(0,0,0,.45), 0 0 18px rgba(198,40,40,.35);
   }
   .lantern::before{
     content:""; position:absolute; left:50%; top:-5px; transform:translateX(-50%);
@@ -193,6 +224,10 @@
     font-size:clamp(22px,5.4vw,30px);
     color:var(--cream);
     line-height:1;
+    display:inline-block;
+  }
+  .lantern .num.tick{
+    animation:tick .4s ease;
   }
   .lantern .lbl{
     display:block;
@@ -204,10 +239,72 @@
     font-weight:700;
   }
 
-  .socials{
-    display:flex; gap:22px; margin-top:12px;
+  /* NEW: Notify form */
+  .notify{
+    width:100%;
+    max-width:400px;
+    margin:0 0 30px;
     opacity:0;
-    animation:riseIn .9s .92s cubic-bezier(.16,1,.3,1) forwards;
+    animation:riseIn .9s .98s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .notify-row{
+    display:flex;
+    gap:8px;
+    background:rgba(246,231,211,.06);
+    border:1px solid rgba(246,231,211,.28);
+    border-radius:999px;
+    padding:5px 5px 5px 18px;
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .notify-row:focus-within{
+    border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(198,40,40,.18);
+  }
+  .notify-row input{
+    flex:1;
+    min-width:0;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--cream);
+    font-family:inherit;
+    font-size:13.5px;
+    letter-spacing:.02em;
+  }
+  .notify-row input::placeholder{ color:rgba(246,231,211,.45); }
+  .notify-row button{
+    flex-shrink:0;
+    background:var(--red);
+    color:var(--cream);
+    border:none;
+    border-radius:999px;
+    padding:11px 20px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:11.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .notify-row button:hover{ background:#a92222; }
+  .notify-row button:active{ transform:scale(.96); }
+  .notify-msg{
+    min-height:18px;
+    margin-top:10px;
+    font-size:11.5px;
+    letter-spacing:.06em;
+    color:var(--beige);
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .notify-msg.show{ opacity:.9; }
+  .notify-msg.err{ color:#ff8a80; }
+
+  .socials{
+    display:flex; gap:22px; margin-top:4px;
+    opacity:0;
+    animation:riseIn .9s 1.08s cubic-bezier(.16,1,.3,1) forwards;
   }
   .socials a{
     width:38px; height:38px;
@@ -218,7 +315,7 @@
     text-decoration:none;
     transition:all .25s ease;
   }
-  .socials a:hover{ border-color:var(--red); color:var(--cream); background:rgba(198,40,40,.14); }
+  .socials a:hover{ border-color:var(--red); color:var(--cream); background:rgba(198,40,40,.14); transform:translateY(-3px); }
   .socials svg{ width:16px; height:16px; }
 
   .steam{ position:absolute; top:-6px; left:50%; width:1px; height:1px; z-index:3; pointer-events:none; }
@@ -244,9 +341,10 @@
     display:flex; align-items:center; justify-content:center;
     cursor:pointer;
     color:var(--cream);
-    transition:border-color .25s ease, background .25s ease;
+    transition:border-color .25s ease, background .25s ease, transform .15s ease;
   }
   .sound-btn:hover{ border-color:var(--red); background:rgba(14,7,7,.72); }
+  .sound-btn:active{ transform:scale(.92); }
   .sound-btn svg{ width:18px; height:18px; }
   .sound-btn .icon-off{ display:none; }
   .sound-btn.muted .icon-on{ display:none; }
@@ -276,6 +374,16 @@
     text-align:center;
   }
 
+  /* NEW: confetti burst piece */
+  .bao-bit{
+    position:fixed;
+    top:0; left:0;
+    z-index:12;
+    font-size:20px;
+    pointer-events:none;
+    will-change:transform, opacity;
+  }
+
   @keyframes riseIn{
     from{ opacity:0; transform:translateY(16px); }
     to{ opacity:1; transform:translateY(0); }
@@ -283,6 +391,14 @@
   @keyframes hintPulse{
     0%,100%{ opacity:.6; transform:translateY(0); }
     50%{ opacity:1; transform:translateY(-2px); }
+  }
+  @keyframes shimmer{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:-220% 50%; }
+  }
+  @keyframes tick{
+    0%{ transform:translateY(-6px); opacity:.4; }
+    100%{ transform:translateY(0); opacity:1; }
   }
   @keyframes rise{
     0%{ transform:translateY(0) scaleY(1); opacity:0; }
@@ -292,10 +408,16 @@
   }
   @keyframes hintIn{ to{ opacity:1; transform:translateY(0); } }
   @keyframes hintOut{ to{ opacity:0; transform:translateY(-4px); } }
+  @keyframes baoPop{
+    0%{ transform:translate(-50%,-50%) scale(.4) rotate(0deg); opacity:1; }
+    100%{ transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1) rotate(var(--tr)); opacity:0; }
+  }
 
   @media (max-width:480px){
     .sound-hint{ right:70px; font-size:9.5px; padding:7px 10px; }
     .countdown{ gap:8px; }
+    .notify-row{ padding:4px 4px 4px 14px; }
+    .notify-row button{ padding:10px 14px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -320,14 +442,14 @@
 <main class="stage">
   <div class="content">
 
-    <div class="mark">
+    <div class="mark" id="mark">
       <div class="steam" aria-hidden="true">
         <div class="wisp"></div>
         <div class="wisp"></div>
         <div class="wisp"></div>
       </div>
 
-      <div class="ramen-wheel" id="ramenWheel" role="img" aria-label="Spinning bowl of ramen, drag to spin">
+      <div class="ramen-wheel" id="ramenWheel" role="img" aria-label="Spinning bowl of ramen, drag to spin, tap for a treat">
         <img src="https://res.cloudinary.com/dey4zikfh/image/upload/v1782939097/Untitled_design_24_qwkeid.png" alt="Bowl of ramen">
       </div>
 
@@ -341,6 +463,8 @@
       Give it a spin
     </p>
 
+    <h1 class="coming-soon">Coming Soon</h1>
+
     <p class="tag-official">
       <span class="dot">•</span>LESS <span class="r">WAIT.</span> MORE <span class="r">YUM.</span><span class="dot">•</span>
     </p>
@@ -353,6 +477,14 @@
       <div class="lantern"><span class="num" id="cd-mins">--</span><span class="lbl">Min</span></div>
       <div class="lantern"><span class="num" id="cd-secs">--</span><span class="lbl">Sec</span></div>
     </div>
+
+    <form class="notify" id="notifyForm" novalidate>
+      <div class="notify-row">
+        <input type="email" id="notifyEmail" placeholder="Enter your email for launch news" autocomplete="email" required>
+        <button type="submit">Notify Me</button>
+      </div>
+      <p class="notify-msg" id="notifyMsg"></p>
+    </form>
 
     <div class="socials">
       <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"></circle></svg></a>
@@ -381,6 +513,16 @@
 
   function pad(n){ return String(n).padStart(2,'0'); }
 
+  let prevVals = { days:null, hours:null, mins:null, secs:null };
+  function bump(el, key, val){
+    if(prevVals[key] !== val){
+      el.classList.remove('tick');
+      void el.offsetWidth;
+      el.classList.add('tick');
+      prevVals[key] = val;
+    }
+  }
+
   function tick(){
     const now = Date.now();
     let diff = target - now;
@@ -389,10 +531,21 @@
     const hours = Math.floor((diff % 86400000) / 3600000);
     const mins = Math.floor((diff % 3600000) / 60000);
     const secs = Math.floor((diff % 60000) / 1000);
-    document.getElementById('cd-days').textContent = pad(days);
-    document.getElementById('cd-hours').textContent = pad(hours);
-    document.getElementById('cd-mins').textContent = pad(mins);
-    document.getElementById('cd-secs').textContent = pad(secs);
+
+    const dEl = document.getElementById('cd-days');
+    const hEl = document.getElementById('cd-hours');
+    const mEl = document.getElementById('cd-mins');
+    const sEl = document.getElementById('cd-secs');
+
+    dEl.textContent = pad(days);
+    hEl.textContent = pad(hours);
+    mEl.textContent = pad(mins);
+    sEl.textContent = pad(secs);
+
+    bump(sEl, 'secs', secs);
+    bump(mEl, 'mins', mins);
+    bump(hEl, 'hours', hours);
+    bump(dEl, 'days', days);
   }
   tick();
   setInterval(tick, 1000);
@@ -440,6 +593,7 @@
     let lastAngle = 0;
     let lastTime = 0;
     let pointerId = null;
+    let didDrag = false;
 
     function angleFromEvent(e){
       const rect = wheel.getBoundingClientRect();
@@ -457,6 +611,7 @@
 
     wheel.addEventListener('pointerdown', (e) => {
       dragging = true;
+      didDrag = false;
       pointerId = e.pointerId;
       wheel.setPointerCapture(pointerId);
       lastAngle = angleFromEvent(e);
@@ -470,6 +625,7 @@
       const dt = Math.max(now - lastTime, 1);
       const currentAngle = angleFromEvent(e);
       const delta = shortestDelta(currentAngle, lastAngle);
+      if(Math.abs(delta) > 0.5) didDrag = true;
       angle += delta;
       velocity = delta / (dt / 16.67);
       lastAngle = currentAngle;
@@ -477,9 +633,16 @@
       wheel.style.transform = `rotate(${angle}deg)`;
     });
 
-    function endDrag(){
+    function endDrag(e){
       dragging = false;
       pointerId = null;
+      // Treat a tap (no meaningful drag) as a "poke" — pop a little bao burst.
+      if(!didDrag && e){
+        burstBao(e.clientX, e.clientY);
+        wheel.classList.add('poked');
+        setTimeout(() => wheel.classList.remove('poked'), 320);
+        velocity = idleSpeed * 6;
+      }
     }
     wheel.addEventListener('pointerup', endDrag);
     wheel.addEventListener('pointercancel', endDrag);
@@ -496,6 +659,81 @@
     requestAnimationFrame(loop);
   })();
 
+  // NEW: playful bao-emoji burst wherever the bowl is tapped
+  const BAO_EMOJI = ['🥟','🍥','✨'];
+  function burstBao(x, y){
+    const count = 8;
+    for(let i = 0; i < count; i++){
+      const bit = document.createElement('span');
+      bit.className = 'bao-bit';
+      bit.textContent = BAO_EMOJI[Math.floor(Math.random() * BAO_EMOJI.length)];
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      const dist = 60 + Math.random() * 50;
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist;
+      const tr = (Math.random() * 360 - 180) + 'deg';
+      bit.style.left = x + 'px';
+      bit.style.top = y + 'px';
+      bit.style.setProperty('--tx', tx + 'px');
+      bit.style.setProperty('--ty', ty + 'px');
+      bit.style.setProperty('--tr', tr);
+      bit.style.animation = 'baoPop .8s cubic-bezier(.16,1,.3,1) forwards';
+      document.body.appendChild(bit);
+      setTimeout(() => bit.remove(), 850);
+    }
+  }
+
+  // NEW: subtle cursor parallax on the logo/bowl mark (desktop pointers only)
+  (function(){
+    const mark = document.getElementById('mark');
+    if(!window.matchMedia('(pointer: fine)').matches) return;
+    let raf = null;
+    document.addEventListener('mousemove', (e) => {
+      if(raf) return;
+      raf = requestAnimationFrame(() => {
+        const w = window.innerWidth, h = window.innerHeight;
+        const dx = (e.clientX / w - 0.5) * 14;
+        const dy = (e.clientY / h - 0.5) * 10;
+        mark.style.transform = `translate(${dx}px, ${dy}px)`;
+        raf = null;
+      });
+    });
+  })();
+
+  // NEW: Notify Me email capture (stored locally; swap the TODO for a real endpoint)
+  (function(){
+    const form = document.getElementById('notifyForm');
+    const input = document.getElementById('notifyEmail');
+    const msg = document.getElementById('notifyMsg');
+    const LIST_KEY = 'baography_notify_list';
+
+    function showMsg(text, isErr){
+      msg.textContent = text;
+      msg.classList.toggle('err', !!isErr);
+      msg.classList.add('show');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if(!isValid){
+        showMsg('Please enter a valid email address.', true);
+        return;
+      }
+      // TODO: replace with a real signup endpoint (Formspree, Mailchimp, etc.)
+      try{
+        const list = JSON.parse(localStorage.getItem(LIST_KEY) || '[]');
+        if(!list.includes(email)) list.push(email);
+        localStorage.setItem(LIST_KEY, JSON.stringify(list));
+      }catch(err){ /* localStorage unavailable — still confirm to the user */ }
+
+      showMsg("You're on the list! We'll let you know the moment we open.", false);
+      const rect = form.getBoundingClientRect();
+      burstBao(rect.left + rect.width / 2, rect.top);
+      input.value = '';
+    });
+  })();
 </script>
 
 </body>
